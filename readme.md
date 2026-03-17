@@ -1,0 +1,13 @@
+test zdfZFAFAFARZFZZF*fZF
+EF
+ZF
+E
+FZ
+F
+EZ
+ZE
+F
+ZEFZEF
+EZ
+FZ
+FZ
