@@ -1,6 +1,6 @@
 import pygame
 import sys
-from source2 import bfs,grid,dfs
+from source2 import bfs,dfs
 ROWS=10
 COLS=10
 CELL_SIZE=50
@@ -29,7 +29,7 @@ STATE_PATH=5
 
 start_pos=None 
 end_pos=None
-
+stored=None
 current_state=WALLING
 
 
@@ -72,7 +72,7 @@ def drawgrid():
                 color=GREEN
             else:
                 color=WHITE
-            if search_running and search_path:
+            if search_running and search_engine:
                 current_cell= (row,col)
                 if 'path'in search_result and current_cell in search_result['path']:
                     color = YELLOW
@@ -166,11 +166,16 @@ while True:
                 print("roger in that nigga")
                 search_running=False
                 search_path=search_result['path']
+                stored=search_result['path']
         except StopIteration:
             print("fuh naw twin no results")
             search_running=False
             search_engine=None
+    elif not search_running and stored:
+        if (row, col) in stored:
+            color = YELLOW
 
     drawgrid() 
 
     pygame.display.flip()
+    pygame.time.Clock().tick(5) 

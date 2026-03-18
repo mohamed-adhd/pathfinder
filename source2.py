@@ -64,13 +64,13 @@ def bfs(grid,start,end):
         print("check for neighbors")
         for neighbor in neighbors :
             n_row,n_col=neighbor
-            if n_row<0 or n_row>=grid.rows or n_col<0 or n_col>=grid.cols:
+            if n_row<0 or n_row>=len(grid) or n_col<0 or n_col>=len(grid[0]):
                 print("block out of bounds")
                 continue
             if neighbor in visited:
                 print("block visited already twin")
                 continue
-            if grid.cells[n_row][n_col]==1:
+            if grid[n_row][n_col]==1:
                 print("its a wall i cant go down there gang")
                 continue
             print("shi is clean , proceeeding ")
@@ -81,7 +81,7 @@ def bfs(grid,start,end):
             'type':'added to frontier',
             'node':neighbor,
             'frontier':set(queue),
-            'visited':visited.cop()}        
+            'visited':visited.copy()}        
     print("shi i m either too dumb or u did me dirty twin")
     return False
 
@@ -124,13 +124,13 @@ def dfs(grid,start,end):
         print("check for neighbors")
         for neighbor in neighbors :
             n_row,n_col=neighbor
-            if n_row<0 or n_row>=grid.rows or n_col<0 or n_col>=grid.cols:
+            if n_row<0 or n_row>=len(grid) or n_col<0 or n_col>=len(grid[0]):
                 print("block out of bounds")
                 continue
             if neighbor in visited:
                 print("block visited already twin")
                 continue
-            if grid.cells[n_row][n_col]==1:
+            if grid[n_row][n_col]==1:
                 print("its a wall i cant go down there gang")
                 continue
             print("shi is clean , proceeeding ")
