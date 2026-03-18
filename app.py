@@ -37,13 +37,27 @@ def bfs(grid,start,end):
     print(f"starting the bfs search for {end} from {start}")
     while queue:
         current=queue.popleft()
+        nodes_explored+=1  
+        yield{
+            'type':'exploring',
+            'node':current,
+            'frontier':set(queue),
+            'visited':visited.copy()}
+        
         if current==end :
-            print(f"target bamboozeled at {current},path : ;\n")
-            print("nodes explored :",nodes_explored)
             path=[]
-            while parent[current]!=None:
-                path.append(current)
-                current=parent[current]
+            step=current
+            while step is not None:
+                path.append(step)
+                step=parent[step]
+            path.reverse()
+            yield{
+            'type':'found',
+            'node':current,
+            'path':path,
+            'visited':visited.copy()}
+            print(f"target bamboozeled at {current},path : {path};\n")
+            print("nodes explored :",nodes_explored)
             return True
         row,col=current
         neighbors=[(row-1,col),(row,col-1),(row+1,col),(row,col+1)]
@@ -62,8 +76,12 @@ def bfs(grid,start,end):
             print("shi is clean , proceeeding ")
             visited.add(neighbor)
             parent[neighbor]=current
-            queue.append(neighbor) 
-            nodes_explored+=1         
+            queue.append(neighbor)
+            yield{
+            'type':'added to frontier',
+            'node':neighbor,
+            'frontier':set(queue),
+            'visited':visited.cop()}        
     print("shi i m either too dumb or u did me dirty twin")
     return False
 
@@ -74,16 +92,32 @@ def dfs(grid,start,end):
     visited=set([start])
     parent={start:None}
     nodes_explored=0
-    print(f"starting the bfs search for {end} from {start}")
+    print(f"starting the dfs search for {end} from {start}")
     while stack:
         current=stack.pop()
+        nodes_explored+=1  
+        yield{
+            'type':'exploring',
+            'node':current,
+            'queue':set(stack),
+            'visited':visited.copy()}
+
+        
         if current==end :
-            print(f"target bamboozeled at {current},path : ;\n")
-            print("nodes explored :",nodes_explored)
             path=[]
-            while parent[current]!=None:
-                path.append(current)
-                current=parent[current]
+            step=current
+            while step is not None:
+                path.append(step)
+                step=parent[step]
+            path.reverse()
+            yield{
+                'type':'found',
+                'node':current,
+                'queue':set(stack),
+                'path':path
+            }
+            print(f"target bamboozeled at {current},path {path} : ;\n")
+            print("nodes explored :",nodes_explored)
             return True
         row,col=current
         neighbors=[(row-1,col),(row,col-1),(row+1,col),(row,col+1)]
@@ -103,7 +137,13 @@ def dfs(grid,start,end):
             visited.add(neighbor)
             parent[neighbor]=current
             stack.append(neighbor)  
-            nodes_explored+=1         
+            yield{
+                'type':'added to frontier',
+                'node':neighbor,
+                'queue':set(stack),
+                'visited':visited.copy()
+
+            }       
     print("shi i m either too dumb or u did me dirty twin")
     return False
     
