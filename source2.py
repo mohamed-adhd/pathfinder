@@ -150,7 +150,7 @@ def bfs(grid,start,end):
             parent[neighbor]=current
             queue.append(neighbor)
             yield{
-            'type':'added to frontier',
+            'type':'added',
             'node':neighbor,
             'frontier':set(queue),
             'visited':visited.copy()}        
@@ -171,7 +171,7 @@ def dfs(grid,start,end):
         yield{
             'type':'exploring',
             'node':current,
-            'queue':set(stack),
+            'frontier':set(stack),
             'visited':visited.copy()}
 
         
@@ -185,7 +185,7 @@ def dfs(grid,start,end):
             yield{
                 'type':'found',
                 'node':current,
-                'queue':set(stack),
+                'frontier':set(stack),
                 'path':path
             }
             print(f"target bamboozeled at {current},path {path} : ;\n")
@@ -210,9 +210,9 @@ def dfs(grid,start,end):
             parent[neighbor]=current
             stack.append(neighbor)  
             yield{
-                'type':'added to frontier',
+                'type':'added',
                 'node':neighbor,
-                'queue':set(stack),
+                'frontier':set(stack),
                 'visited':visited.copy()
 
             }       
