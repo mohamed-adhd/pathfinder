@@ -1,17 +1,41 @@
+
+
+
+
+
+
+
+
+
+#             DISCLAIMER : THIS SHI IS PURE HUMAN NOT A DAMN LINE IS FROM AI 
+
+
+
+
+
+
+
+
+
 import pygame
 import sys
-from source2 import bfs,dfs
-ROWS=10
-COLS=10
-CELL_SIZE=50
+from source2 import bfs,dfs,Button
+ROWS=9
+COLS=24
+CELL_SIZE=40
 WIDTH=COLS*CELL_SIZE
 HEIGHT=ROWS*CELL_SIZE
+
+
+WINDOW_HEIGHT=720
+WINDOW_WIDTH=720
+GIRID_OFFSET=360
 WALL=1
 START=2
 END=3
 EMPTY=0
 pygame.init()
-screen = pygame.display.set_mode((WIDTH,HEIGHT))
+screen = pygame.display.set_mode((WINDOW_WIDTH,WINDOW_HEIGHT))
 pygame.display.set_caption("fuckass pathfinder")
 WHITE=(255,255,255)
 RED=(255,0,0)
@@ -42,8 +66,12 @@ search_path=None
 
 
 
-
-
+wall_button =Button(20,50,100,40,"WALLS",pygame.Color('gray'),pygame.Color('darkgray'))
+start_button =Button(160,50,100,40,"START",pygame.Color('green'),pygame.Color('darkgreen'))
+end_button =Button(300,50,100,40,"END",pygame.Color('red'),pygame.Color('darkred'))
+clear_button =Button(420,50,100,40,"CLEAR",pygame.Color('blue'),pygame.Color('darkblue'))
+bfs_button =Button(560,50,100,40,"BFS",pygame.Color('gold'),pygame.Color('darkgoldenrod'))
+dfs_button =Button(20,100,100,40,"DFS",pygame.Color('lavender'),pygame.Color('plum'))
 
 
 
@@ -53,15 +81,17 @@ search_path=None
 grid=[[0 for _ in range (COLS)] for _ in range (ROWS)]
 def getcellmouse(pos):
      x,y=pos
-     row=y//50
-     col=x//50
+     if y<GIRID_OFFSET:
+         return None
+     row=(y-GIRID_OFFSET)//40
+     col=x//40
      print(f"nigga clicked on cell ({row},{col}) lmaooooo")
      return (row,col)
 def drawgrid():
     screen.fill(WHITE)
     for row in range(ROWS):
         for col in range(COLS):
-            y=row*CELL_SIZE
+            y=GIRID_OFFSET+row*CELL_SIZE
             x=col*CELL_SIZE
             rect=pygame.Rect(x,y,CELL_SIZE,CELL_SIZE)
             if grid[row][col]==1 :
@@ -72,7 +102,7 @@ def drawgrid():
                 color=GREEN
             else:
                 color=WHITE
-            if search_running and search_engine:
+            if search_running and search_result:
                 current_cell= (row,col)
                 if 'path'in search_result and current_cell in search_result['path']:
                     color = YELLOW
@@ -83,7 +113,9 @@ def drawgrid():
                 elif current_cell in search_result.get('visited',set()):
                     color=(200,200,255)
 
-
+            if not search_running and stored:
+                if (row, col) in stored:
+                    color = YELLOW
 
 
 
@@ -106,20 +138,32 @@ while True:
         if event.type == pygame.QUIT:
             pygame.quit()
             sys.exit()
-        elif event.type == pygame.KEYDOWN:
-            if event.key==pygame.K_1:
+        wall_button.handle_event(event)
+        start_button.handle_event(event)
+        end_button.handle_event(event)
+        clear_button.handle_event(event)
+        bfs_button.handle_event(event)
+        dfs_button.handle_event(event)
+        if event.type == pygame.MOUSEBUTTONDOWN:
+            if wall_button.handle_event(event):
                 current_state=WALLING
                 print("adding walls currently*")
-            elif event.key == pygame.K_2:
+            elif start_button.handle_event(event):
                 current_state=STARTING
                 print("adding start bloc currently*")
-            elif event.key==pygame.K_3:
+            elif end_button.handle_event(event):
                 current_state=ENDING
                 print("adding end bloc currently*")
-            elif event.key==pygame.K_4:
-                grid=[[0 for _ in range (ROWS)] for _ in range (COLS)]
+            elif clear_button.handle_event(event):
+                grid=[[0 for _ in range (COLS)] for _ in range (ROWS)]
+                search_running=False
+                search_engine=None
+                start_pos=None
+                end_pos=None
+                current_state=WALLING
+                search_result=None
                 print("grid cleared nigga")
-            elif event.key==pygame.K_b:
+            elif bfs_button.handle_event(event):
                 if start_pos and end_pos:
                     print("starting bfs")
                     search_engine=bfs(grid,start_pos,end_pos)
@@ -127,14 +171,18 @@ while True:
                     current_state=START_BFS
                 else:
                     print("set both start and end position negro ! ")
-            elif event.key==pygame.K_d:
+            elif dfs_button.handle_event(event):
                 if start_pos and end_pos:
                     print("starting dfs")
                     search_engine=dfs(grid,start_pos,end_pos)
                     search_running=True
                     current_state=START_DFS 
-        elif event.type == pygame.MOUSEBUTTONDOWN:
+            
+            
+            if getcellmouse(event.pos)==None:
+                continue
             row,col=getcellmouse(event.pos)
+            
             if (0<=row<ROWS and 0<=col<COLS):
                 if current_state==WALLING:
                     if event.button==1:
@@ -165,17 +213,19 @@ while True:
             if search_result['type']=='found':
                 print("roger in that nigga")
                 search_running=False
+                search_engine=None
                 search_path=search_result['path']
                 stored=search_result['path']
         except StopIteration:
             print("fuh naw twin no results")
             search_running=False
             search_engine=None
-    elif not search_running and stored:
-        if (row, col) in stored:
-            color = YELLOW
-
     drawgrid() 
-
+    wall_button.draw(screen)
+    start_button.draw(screen)
+    end_button.draw(screen)
+    clear_button.draw(screen)
+    bfs_button.draw(screen)
+    dfs_button.draw(screen)
     pygame.display.flip()
     pygame.time.Clock().tick(5) 
