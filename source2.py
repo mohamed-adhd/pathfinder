@@ -114,7 +114,8 @@ def bfs(grid,start,end):
             'type':'exploring',
             'node':current,
             'frontier':set(queue),
-            'visited':visited.copy()}
+            'visited':visited.copy(),
+            'nodes_explored':nodes_explored}
         
         if current==end :
             path=[]
@@ -127,7 +128,8 @@ def bfs(grid,start,end):
             'type':'found',
             'node':current,
             'path':path,
-            'visited':visited.copy()}
+            'visited':visited.copy(),
+            'nodes_explored':nodes_explored}
             print(f"target bamboozeled at {current},path : {path};\n")
             print("nodes explored :",nodes_explored)
             return True
@@ -153,7 +155,8 @@ def bfs(grid,start,end):
             'type':'added',
             'node':neighbor,
             'frontier':set(queue),
-            'visited':visited.copy()}        
+            'visited':visited.copy(),
+            'nodes_explored':nodes_explored}        
     print("shi i m either too dumb or u did me dirty twin")
     return False
 
@@ -172,7 +175,8 @@ def dfs(grid,start,end):
             'type':'exploring',
             'node':current,
             'frontier':set(stack),
-            'visited':visited.copy()}
+            'visited':visited.copy(),
+            'nodes_explored':nodes_explored}
 
         
         if current==end :
@@ -186,7 +190,8 @@ def dfs(grid,start,end):
                 'type':'found',
                 'node':current,
                 'frontier':set(stack),
-                'path':path
+                'path':path,
+                'nodes_explored':nodes_explored
             }
             print(f"target bamboozeled at {current},path {path} : ;\n")
             print("nodes explored :",nodes_explored)
@@ -213,7 +218,8 @@ def dfs(grid,start,end):
                 'type':'added',
                 'node':neighbor,
                 'frontier':set(stack),
-                'visited':visited.copy()
+                'visited':visited.copy(),
+                'nodes_explored':nodes_explored
 
             }       
     print("shi i m either too dumb or u did me dirty twin")

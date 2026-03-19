@@ -19,6 +19,7 @@
 
 import pygame
 import sys
+import time
 from source2 import bfs,dfs,Button
 ROWS=9
 COLS=24
@@ -28,7 +29,7 @@ HEIGHT=ROWS*CELL_SIZE
 
 
 WINDOW_HEIGHT=720
-WINDOW_WIDTH=720
+WINDOW_WIDTH=960
 GIRID_OFFSET=360
 WALL=1
 START=2
@@ -55,23 +56,40 @@ start_pos=None
 end_pos=None
 stored=None
 current_state=WALLING
-
-
-
+mouse_held=False
+last_drag_cell=None
+nodes_explored=0
+start_time=0
+end_time=0
+time_taken=0
 
 search_running=0
 search_engine=None
 search_result=None
 search_path=None
 
+wall_button =Button(50,50,100,40,"WALLS",pygame.Color('gray'),pygame.Color('darkgray'))
+start_button =Button(180,50,100,40,"START",pygame.Color('green'),pygame.Color('darkgreen'))
+end_button =Button(310,50,100,40,"END",pygame.Color('red'),pygame.Color('darkred'))
+clear_button =Button(440,50,100,40,"CLEAR",pygame.Color('blue'),pygame.Color('darkblue'))
+bfs_button =Button(570,50,100,40,"BFS",pygame.Color('gold'),pygame.Color('darkgoldenrod'))
+dfs_button =Button(700,50,100,40,"DFS",pygame.Color('lavender'),pygame.Color('plum'))
+def drawreport():
+    font=pygame.font.Font("font.ttf",24)
+    
+    stats_surface=pygame.Surface((300,120))
+    stats_surface.set_alpha(200)
+    stats_surface.fill((240,240,240))
+    screen.blit(stats_surface,(300,170))
+    pygame.draw.rect(screen,BLACK,(300,170,300,120),2)
+    nodes_text=font.render(f"nodes explored : {nodes_explored} ",True,BLACK)
+    screen.blit(nodes_text,(320,180))
+    time_text=font.render(f"time taken : {time_taken: .3f} S",True,BLACK)
+    screen.blit(time_text,(320,215))
 
-
-wall_button =Button(20,50,100,40,"WALLS",pygame.Color('gray'),pygame.Color('darkgray'))
-start_button =Button(160,50,100,40,"START",pygame.Color('green'),pygame.Color('darkgreen'))
-end_button =Button(300,50,100,40,"END",pygame.Color('red'),pygame.Color('darkred'))
-clear_button =Button(420,50,100,40,"CLEAR",pygame.Color('blue'),pygame.Color('darkblue'))
-bfs_button =Button(560,50,100,40,"BFS",pygame.Color('gold'),pygame.Color('darkgoldenrod'))
-dfs_button =Button(20,100,100,40,"DFS",pygame.Color('lavender'),pygame.Color('plum'))
+    if stored:
+       path_text=font.render(f"path length : {len(stored)-1} steps ",True,BLACK)
+       screen.blit(path_text,(320,250))
 
 
 
@@ -134,6 +152,7 @@ def drawgrid():
 
 
 while True:
+    last_mouse_pos=None
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             pygame.quit()
@@ -145,6 +164,8 @@ while True:
         bfs_button.handle_event(event)
         dfs_button.handle_event(event)
         if event.type == pygame.MOUSEBUTTONDOWN:
+            mouse_held=True
+            last_drag_cell=None
             if wall_button.handle_event(event):
                 current_state=WALLING
                 print("adding walls currently*")
@@ -162,6 +183,8 @@ while True:
                 end_pos=None
                 current_state=WALLING
                 search_result=None
+                time_taken=0
+                nodes_explored=0
                 print("grid cleared nigga")
             elif bfs_button.handle_event(event):
                 if start_pos and end_pos:
@@ -169,6 +192,11 @@ while True:
                     search_engine=bfs(grid,start_pos,end_pos)
                     search_running=True
                     current_state=START_BFS
+                    start_time=time.time()
+                    nodes_explored=0
+                    time_taken=0
+
+
                 else:
                     print("set both start and end position negro ! ")
             elif dfs_button.handle_event(event):
@@ -177,6 +205,9 @@ while True:
                     search_engine=dfs(grid,start_pos,end_pos)
                     search_running=True
                     current_state=START_DFS 
+                    start_time=time.time()
+                    nodes_explored=0
+                    time_taken=0
             
             
             if getcellmouse(event.pos)==None:
@@ -201,6 +232,22 @@ while True:
                         grid[oldrow][oldcol]=0
                     grid[row][col]=3
                     end_pos=(row,col)
+        elif event.type==pygame.MOUSEBUTTONUP:
+            mouse_held=False
+            last_drag_cell=None
+        elif event.type==pygame.MOUSEMOTION:
+            last_mouse_pos=event.pos
+            if current_state==WALLING and mouse_held and last_mouse_pos:
+                cell=getcellmouse(last_mouse_pos)
+                if cell and cell!= last_drag_cell:
+                    x,y=cell
+                    if 0<=x<ROWS and 0<=y<COLS:
+                        if pygame.mouse.get_pressed()[0]:
+                            grid[x][y]=1
+                        elif pygame.mouse.get_pressed()[2]:
+                            grid[x][y]=0
+                        last_drag_cell=cell
+                    
     
                 
                 
@@ -209,6 +256,9 @@ while True:
     if search_running and search_engine:
         try:
             search_result=next(search_engine)
+            if 'nodes_explored' in search_result:
+                nodes_explored=search_result['nodes_explored']
+            time_taken=time.time()-start_time
 
             if search_result['type']=='found':
                 print("roger in that nigga")
@@ -216,16 +266,21 @@ while True:
                 search_engine=None
                 search_path=search_result['path']
                 stored=search_result['path']
+                time_taken=time.time()-start_time
         except StopIteration:
             print("fuh naw twin no results")
             search_running=False
             search_engine=None
-    drawgrid() 
+            end_time=time.time()
+            time_taken=end_time-start_time
+    drawgrid()
+    
     wall_button.draw(screen)
     start_button.draw(screen)
     end_button.draw(screen)
     clear_button.draw(screen)
     bfs_button.draw(screen)
     dfs_button.draw(screen)
+    drawreport()
     pygame.display.flip()
     pygame.time.Clock().tick(5) 
