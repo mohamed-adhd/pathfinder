@@ -151,7 +151,7 @@ took the bfs and dfs concepts from cs50ai and then made a project out of it .
 
 ## 🧠 What I Learned
 
-i already knew the defenitions of dfs and bfs 
+i already knew the definitions of dfs and bfs 
 , but this project helped me understand more abt step-by-step machines 
 , using the yield and swithcing from a default dfs algorithm to a visualisation friendly one.
 
