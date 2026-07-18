@@ -41,7 +41,6 @@ The visualizer uses generator-based search functions, so the algorithm does not 
 
 ## Demo Video
 
-> Demo video placeholder: add the pathfinding visualization recording or GitHub uploaded video here.
 
 ```md
 when i find some time :p
